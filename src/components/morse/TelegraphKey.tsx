@@ -56,27 +56,25 @@ export function TelegraphKey({
 
   return (
     <div className="flex flex-col items-center gap-4 select-none">
-      {/* Last symbol indicator */}
+      {/* Indicatore ultimo simbolo */}
       <div className="h-10 flex items-center justify-center">
         {lastSymbol !== null ? (
           <span
             className={cn(
               "text-3xl font-mono font-bold transition-all duration-100",
-              lastSymbol === "."
-                ? "text-emerald-400 scale-110"
-                : "text-amber-400 scale-110"
+              lastSymbol === "." ? "text-emerald-400 scale-110" : "text-amber-400 scale-110"
             )}
             aria-live="assertive"
-            aria-label={lastSymbol === "." ? "Dot" : "Dash"}
+            aria-label={lastSymbol === "." ? "Punto" : "Linea"}
           >
             {lastSymbol === "." ? "·" : "−"}
           </span>
         ) : (
-          <span className="text-slate-600 text-sm">tap or hold</span>
+          <span className="text-slate-600 text-sm">premi o tieni premuto</span>
         )}
       </div>
 
-      {/* The key */}
+      {/* Il tasto */}
       <button
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
@@ -85,19 +83,16 @@ export function TelegraphKey({
         onTouchEnd={handlePressEnd}
         onTouchCancel={handlePressCancel}
         disabled={disabled}
-        aria-label="Telegraph key: tap for dot, hold for dash"
+        aria-label="Tasto telegrafo: premi per punto, tieni per linea"
         className={cn(
           "relative w-24 h-24 sm:w-28 sm:h-28 rounded-full",
           "border-4 transition-all duration-75",
           "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
-          "touch-none", // prevent scroll interference on mobile
+          "touch-none",
           disabled
             ? "opacity-40 cursor-not-allowed border-slate-600 bg-slate-700"
             : pressed
-            ? [
-                "border-red-800 bg-red-700",
-                "scale-95 shadow-inner shadow-red-950",
-              ]
+            ? ["border-red-800 bg-red-700", "scale-95 shadow-inner shadow-red-950"]
             : [
                 "border-red-600 bg-red-600",
                 "hover:bg-red-500 hover:border-red-500",
@@ -106,7 +101,6 @@ export function TelegraphKey({
               ]
         )}
       >
-        {/* Top glare */}
         <span
           className={cn(
             "absolute top-3 left-1/2 -translate-x-1/2 w-10 h-3 rounded-full",
@@ -115,8 +109,6 @@ export function TelegraphKey({
           )}
           aria-hidden="true"
         />
-
-        {/* Icon */}
         <span
           className={cn(
             "absolute inset-0 flex items-center justify-center",
@@ -129,15 +121,15 @@ export function TelegraphKey({
         </span>
       </button>
 
-      {/* Legend */}
+      {/* Legenda */}
       <div className="flex items-center gap-5 text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-          Tap = dot
+          Tap = punto
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-5 h-2 rounded bg-amber-500" />
-          Hold = dash
+          Tieni = linea
         </span>
       </div>
     </div>

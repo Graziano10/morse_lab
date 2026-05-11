@@ -16,12 +16,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "MorseLab — Learn Morse Code",
+    default: "MorseLab — Impara il Codice Morse",
     template: "%s · MorseLab",
   },
   description:
-    "A modern educational web app to learn, translate and practice Morse code. Translator, audio player, full dictionary and training mode.",
-  keywords: ["morse code", "learn morse", "morse translator", "morse audio", "morse training"],
+    "Un'app educativa moderna per imparare, tradurre e praticare il codice Morse. Traduttore, riproduttore audio, dizionario completo e modalità allenamento.",
+  keywords: ["codice morse", "impara morse", "traduttore morse", "morse audio", "pratica morse"],
 };
 
 export const viewport: Viewport = {
@@ -37,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="it"
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <body className="min-h-svh flex flex-col bg-slate-900 text-slate-100">

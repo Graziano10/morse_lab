@@ -96,7 +96,7 @@ export function PracticeCard() {
     if (currentQuestion.type === "char-to-morse") {
       return (
         <div className="text-center">
-          <p className="text-sm text-slate-400 mb-2">What is the Morse code for:</p>
+          <p className="text-sm text-slate-400 mb-2">Qual è il codice Morse per:</p>
           <span className="text-6xl sm:text-7xl font-bold text-slate-100 font-mono">
             {currentQuestion.char}
           </span>
@@ -105,7 +105,7 @@ export function PracticeCard() {
     }
     return (
       <div className="text-center">
-        <p className="text-sm text-slate-400 mb-3">What letter/number is this?</p>
+        <p className="text-sm text-slate-400 mb-3">Che lettera/numero è questo?</p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           {currentQuestion.morse.split("").map((sym, i) => (
             <span
@@ -122,7 +122,7 @@ export function PracticeCard() {
           onClick={handlePlayMorse}
           disabled={playing}
           className="mt-4 inline-flex items-center gap-2 text-sm text-slate-400 hover:text-emerald-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded px-2 py-1"
-          aria-label={playing ? "Playing audio" : "Play Morse sound"}
+          aria-label={playing ? "Riproduzione in corso" : "Ascolta audio Morse"}
         >
           {playing ? (
             <>
@@ -130,14 +130,14 @@ export function PracticeCard() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
               </svg>
-              Playing…
+              In riproduzione…
             </>
           ) : (
             <>
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
               </svg>
-              Listen
+              Ascolta
             </>
           )}
         </button>
@@ -147,8 +147,8 @@ export function PracticeCard() {
 
   const answerPlaceholder =
     currentQuestion?.type === "char-to-morse"
-      ? "Type Morse code (e.g. ... --- ...)"
-      : "Type the character (e.g. S)";
+      ? "Inserisci il codice Morse (es. ... --- ...)"
+      : "Inserisci il carattere (es. S)";
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-lg mx-auto">
@@ -156,15 +156,15 @@ export function PracticeCard() {
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-slate-700/60 bg-slate-800/60 px-4 py-3 text-center">
           <p className="text-2xl font-bold text-emerald-400">{score}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Correct</p>
+          <p className="text-xs text-slate-500 mt-0.5">Corrette</p>
         </div>
         <div className="rounded-xl border border-slate-700/60 bg-slate-800/60 px-4 py-3 text-center">
           <p className="text-2xl font-bold text-slate-100">{total}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Total</p>
+          <p className="text-xs text-slate-500 mt-0.5">Totale</p>
         </div>
         <div className="rounded-xl border border-slate-700/60 bg-slate-800/60 px-4 py-3 text-center">
           <p className="text-2xl font-bold text-amber-400">{streak}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Streak</p>
+          <p className="text-xs text-slate-500 mt-0.5">Serie</p>
         </div>
       </div>
 
@@ -172,7 +172,7 @@ export function PracticeCard() {
       {total > 0 && (
         <div>
           <div className="flex justify-between text-xs text-slate-500 mb-1">
-            <span>Accuracy</span>
+            <span>Precisione</span>
             <span className="text-emerald-400 font-mono">{accuracy}%</span>
           </div>
           <div className="h-2 w-full rounded-full bg-slate-700">
@@ -183,7 +183,7 @@ export function PracticeCard() {
               aria-valuenow={accuracy}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label={`Accuracy: ${accuracy}%`}
+              aria-label={`Precisione: ${accuracy}%`}
             />
           </div>
         </div>
@@ -193,7 +193,7 @@ export function PracticeCard() {
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="text-base">Practice Mode</CardTitle>
+            <CardTitle className="text-base">Modalità</CardTitle>
             <div className="flex items-center gap-1 rounded-lg bg-slate-900/60 p-1 border border-slate-700/60">
               {(["random", "char-to-morse", "morse-to-char"] as PracticeMode[]).map(
                 (m) => (
@@ -207,7 +207,7 @@ export function PracticeCard() {
                     }`}
                     aria-pressed={mode === m}
                   >
-                    {m === "random" ? "Random" : m === "char-to-morse" ? "→ Morse" : "→ Text"}
+                    {m === "random" ? "Casuale" : m === "char-to-morse" ? "→ Morse" : "→ Testo"}
                   </button>
                 )
               )}
@@ -236,11 +236,11 @@ export function PracticeCard() {
             >
               <span className="text-lg">{lastAnswerCorrect ? "✓" : "✗"}</span>
               <span className="text-sm font-medium">
-                {lastAnswerCorrect ? "Correct!" : "Wrong!"}
+                {lastAnswerCorrect ? "Corretto!" : "Sbagliato!"}
               </span>
               {!lastAnswerCorrect && isRevealed && currentQuestion && (
                 <span className="text-sm ml-auto font-mono">
-                  Answer:{" "}
+                  Risposta:{" "}
                   <span className="text-slate-200">
                     {currentQuestion.type === "char-to-morse"
                       ? currentQuestion.morse
@@ -254,7 +254,7 @@ export function PracticeCard() {
           {/* Revealed answer */}
           {isRevealed && lastAnswerCorrect === null && currentQuestion && (
             <div className="rounded-lg bg-slate-700/40 border border-slate-600/40 px-4 py-3" aria-live="polite">
-              <span className="text-sm text-slate-400">Answer: </span>
+              <span className="text-sm text-slate-400">Risposta: </span>
               <span className="font-mono text-slate-100 font-semibold">
                 {currentQuestion.type === "char-to-morse"
                   ? currentQuestion.morse
@@ -268,7 +268,7 @@ export function PracticeCard() {
             <div className="flex items-center justify-between rounded-lg border border-slate-700/40 bg-slate-800/40 px-4 py-2.5">
               <div className="flex items-center gap-2">
                 <span className="text-base">📡</span>
-                <span className="text-sm font-medium text-slate-300">Telegraph Key</span>
+                <span className="text-sm font-medium text-slate-300">Tasto Telegrafo</span>
               </div>
               <button
                 onClick={() => {
@@ -277,7 +277,7 @@ export function PracticeCard() {
                 }}
                 role="switch"
                 aria-checked={useTelegraph}
-                aria-label="Toggle telegraph key input"
+                aria-label="Attiva/disattiva il tasto telegrafo"
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ${
                   useTelegraph ? "bg-emerald-500" : "bg-slate-600"
                 }`}
@@ -298,7 +298,7 @@ export function PracticeCard() {
               <div
                 className="w-full min-h-[48px] flex items-center justify-center rounded-lg border border-slate-700 bg-slate-900/60 px-4 py-3"
                 aria-live="polite"
-                aria-label="Morse code being entered"
+                aria-label="Codice Morse in inserimento"
               >
                 {answer ? (
                   <span className="font-mono text-2xl tracking-widest">
@@ -312,7 +312,7 @@ export function PracticeCard() {
                     ))}
                   </span>
                 ) : (
-                  <span className="text-slate-600 text-sm">press the key to start…</span>
+                  <span className="text-slate-600 text-sm">premi il tasto per iniziare…</span>
                 )}
               </div>
 
@@ -330,7 +330,7 @@ export function PracticeCard() {
                   variant="ghost"
                   size="md"
                   disabled={!answer}
-                  aria-label="Delete last symbol"
+                  aria-label="Cancella ultimo simbolo"
                   className="flex-none px-3"
                 >
                   ⌫
@@ -341,10 +341,10 @@ export function PracticeCard() {
                   variant="ghost"
                   size="md"
                   disabled={!answer}
-                  aria-label="Clear all symbols"
+                  aria-label="Cancella tutto"
                   className="flex-none px-3"
                 >
-                  Clear
+                  Cancella
                 </Button>
                 <Button
                   type="button"
@@ -353,7 +353,7 @@ export function PracticeCard() {
                   disabled={!answer.trim()}
                   className="flex-1"
                 >
-                  Submit
+                  Invia
                 </Button>
               </div>
             </div>
@@ -365,7 +365,7 @@ export function PracticeCard() {
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 placeholder={answerPlaceholder}
-                aria-label="Your answer"
+                aria-label="La tua risposta"
                 autoComplete="off"
                 autoCapitalize="characters"
               />
@@ -376,7 +376,7 @@ export function PracticeCard() {
                   disabled={!answer.trim()}
                   className="flex-1"
                 >
-                  Submit
+                  Invia
                 </Button>
                 <Button
                   type="button"
@@ -385,7 +385,7 @@ export function PracticeCard() {
                   size="lg"
                   className="flex-1"
                 >
-                  Reveal
+                  Rivela
                 </Button>
                 <Button
                   type="button"
@@ -394,7 +394,7 @@ export function PracticeCard() {
                   size="lg"
                   className="flex-1"
                 >
-                  Skip
+                  Salta
                 </Button>
               </div>
             </form>
@@ -429,7 +429,7 @@ export function PracticeCard() {
       {/* Reset */}
       {total > 0 && (
         <Button onClick={reset} variant="ghost" size="sm" className="w-full text-slate-500">
-          Reset session
+          Reimposta sessione
         </Button>
       )}
     </div>
