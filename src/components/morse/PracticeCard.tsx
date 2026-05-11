@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { usePracticeStore } from "@/stores/practiceStore";
 import { playMorse, stopMorse } from "@/lib/audio/playMorse";
+import { TelegraphKey } from "./TelegraphKey";
 
 type PracticeMode = "char-to-morse" | "morse-to-char" | "random";
+
+/** Returns true when the active question expects a Morse code answer */
+function expectsMorse(mode: PracticeMode, questionType?: string): boolean {
+  if (questionType) return questionType === "char-to-morse";
+  return mode === "char-to-morse";
+}
 
 export function PracticeCard() {
   const {
@@ -27,21 +33,32 @@ export function PracticeCard() {
   const [answer, setAnswer] = useState("");
   const [mode, setMode] = useState<PracticeMode>("random");
   const [playing, setPlaying] = useState(false);
+  const [useTelegraph, setUseTelegraph] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const accuracy = total > 0 ? Math.round((score / total) * 100) : 0;
+
+  // Determine if current question expects a Morse answer
+  const isMorseAnswer = expectsMorse(mode, currentQuestion?.type);
 
   useEffect(() => {
     startNewQuestion();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
+  // When the question changes, reset telegraph input and refocus
+  useEffect(() => {
+    setAnswer("");
+    if (!useTelegraph) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [currentQuestion, useTelegraph]);
+
   function startNewQuestion() {
     stopMorse();
     setPlaying(false);
     setAnswer("");
     nextQuestion(mode === "random" ? undefined : mode);
-    setTimeout(() => inputRef.current?.focus(), 100);
   }
 
   function handleSubmit(e?: React.FormEvent) {
@@ -51,19 +68,21 @@ export function PracticeCard() {
     setAnswer("");
   }
 
-  function handleReveal() {
-    reveal();
+  // Telegraph key: append symbol to the answer string
+  const handleTelegraphSymbol = useCallback((symbol: "." | "-") => {
+    setAnswer((prev) => (prev ? prev + symbol : symbol));
+  }, []);
+
+  // Backspace the last symbol when using telegraph
+  function handleTelegraphBackspace() {
+    setAnswer((prev) => prev.slice(0, -1));
   }
 
   async function handlePlayMorse() {
     if (!currentQuestion) return;
-    const morse =
-      currentQuestion.type === "morse-to-char"
-        ? currentQuestion.morse
-        : currentQuestion.morse;
     setPlaying(true);
     try {
-      await playMorse(morse, { wpm: 18 });
+      await playMorse(currentQuestion.morse, { wpm: 18 });
     } finally {
       setPlaying(false);
     }
@@ -170,7 +189,7 @@ export function PracticeCard() {
       {/* Mode selector */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-base">Practice Mode</CardTitle>
             <div className="flex items-center gap-1 rounded-lg bg-slate-900/60 p-1 border border-slate-700/60">
               {(["random", "char-to-morse", "morse-to-char"] as PracticeMode[]).map(
@@ -178,7 +197,7 @@ export function PracticeCard() {
                   <button
                     key={m}
                     onClick={() => setMode(m)}
-                    className={`px-2 py-1 rounded-md text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 min-h-[32px] ${
+                    className={`px-2 py-1.5 rounded-md text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 min-h-[32px] ${
                       mode === m
                         ? "bg-emerald-500 text-white"
                         : "text-slate-400 hover:text-slate-200"
@@ -241,31 +260,151 @@ export function PracticeCard() {
             </div>
           )}
 
-          {/* Answer form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <Input
-              ref={inputRef}
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder={answerPlaceholder}
-              aria-label="Your answer"
-              autoComplete="off"
-              autoCapitalize="characters"
-            />
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={!answer.trim()}
-                className="flex-1"
+          {/* Telegraph toggle — only when the answer must be Morse */}
+          {isMorseAnswer && (
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/40 bg-slate-800/40 px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-base">📡</span>
+                <span className="text-sm font-medium text-slate-300">Telegraph Key</span>
+              </div>
+              <button
+                onClick={() => {
+                  setUseTelegraph((v) => !v);
+                  setAnswer("");
+                }}
+                role="switch"
+                aria-checked={useTelegraph}
+                aria-label="Toggle telegraph key input"
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ${
+                  useTelegraph ? "bg-emerald-500" : "bg-slate-600"
+                }`}
               >
-                Submit
-              </Button>
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    useTelegraph ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          )}
+
+          {/* ── Telegraph input mode ── */}
+          {useTelegraph && isMorseAnswer ? (
+            <div className="flex flex-col items-center gap-5 py-2">
+              {/* Live morse display */}
+              <div
+                className="w-full min-h-[48px] flex items-center justify-center rounded-lg border border-slate-700 bg-slate-900/60 px-4 py-3"
+                aria-live="polite"
+                aria-label="Morse code being entered"
+              >
+                {answer ? (
+                  <span className="font-mono text-2xl tracking-widest">
+                    {answer.split("").map((sym, i) => (
+                      <span
+                        key={i}
+                        className={sym === "." ? "text-emerald-400" : "text-amber-400"}
+                      >
+                        {sym}
+                      </span>
+                    ))}
+                  </span>
+                ) : (
+                  <span className="text-slate-600 text-sm">press the key to start…</span>
+                )}
+              </div>
+
+              {/* The key */}
+              <TelegraphKey
+                onSymbol={handleTelegraphSymbol}
+                disabled={!currentQuestion || lastAnswerCorrect !== null}
+              />
+
+              {/* Actions */}
+              <div className="flex w-full gap-2">
+                <Button
+                  type="button"
+                  onClick={handleTelegraphBackspace}
+                  variant="ghost"
+                  size="md"
+                  disabled={!answer}
+                  aria-label="Delete last symbol"
+                  className="flex-none px-3"
+                >
+                  ⌫
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => setAnswer("")}
+                  variant="ghost"
+                  size="md"
+                  disabled={!answer}
+                  aria-label="Clear all symbols"
+                  className="flex-none px-3"
+                >
+                  Clear
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  size="md"
+                  disabled={!answer.trim()}
+                  className="flex-1"
+                >
+                  Submit
+                </Button>
+              </div>
+            </div>
+          ) : (
+            /* ── Keyboard input mode ── */
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <Input
+                ref={inputRef}
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                placeholder={answerPlaceholder}
+                aria-label="Your answer"
+                autoComplete="off"
+                autoCapitalize="characters"
+              />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={!answer.trim()}
+                  className="flex-1"
+                >
+                  Submit
+                </Button>
+                <Button
+                  type="button"
+                  onClick={reveal}
+                  variant="ghost"
+                  size="lg"
+                  className="flex-1"
+                >
+                  Reveal
+                </Button>
+                <Button
+                  type="button"
+                  onClick={startNewQuestion}
+                  variant="secondary"
+                  size="lg"
+                  className="flex-1"
+                >
+                  Skip
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* Skip / Reveal — always visible in telegraph mode too */}
+          {useTelegraph && isMorseAnswer && (
+            <div className="flex gap-2">
               <Button
                 type="button"
-                onClick={handleReveal}
+                onClick={reveal}
                 variant="ghost"
-                size="lg"
+                size="md"
                 className="flex-1"
               >
                 Reveal
@@ -274,13 +413,13 @@ export function PracticeCard() {
                 type="button"
                 onClick={startNewQuestion}
                 variant="secondary"
-                size="lg"
+                size="md"
                 className="flex-1"
               >
                 Skip
               </Button>
             </div>
-          </form>
+          )}
         </CardBody>
       </Card>
 
