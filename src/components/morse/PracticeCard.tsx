@@ -41,31 +41,46 @@ export function PracticeCard() {
   // Determine if current question expects a Morse answer
   const isMorseAnswer = expectsMorse(mode, currentQuestion?.type);
 
-  useEffect(() => {
-    startNewQuestion();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+function handleModeChange(newMode: PracticeMode) {
+  stopMorse();
+  setPlaying(false);
+  setAnswer("");
+  setMode(newMode);
+  nextQuestion(newMode === "random" ? undefined : newMode);
+}
 
-  // When the question changes, reset telegraph input and refocus
-  useEffect(() => {
-    setAnswer("");
-    if (!useTelegraph) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [currentQuestion, useTelegraph]);
+useEffect(() => {
+  if (!useTelegraph) {
+    const id = window.setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+
+    return () => window.clearTimeout(id);
+  }
+}, [currentQuestion, useTelegraph]);
 
   function startNewQuestion() {
-    stopMorse();
-    setPlaying(false);
-    setAnswer("");
+  stopMorse();
+  setPlaying(false);
+  setAnswer("");
+  nextQuestion(mode === "random" ? undefined : mode);
+    }
+    
+    useEffect(() => {
+  if (!currentQuestion) {
     nextQuestion(mode === "random" ? undefined : mode);
   }
+}, [currentQuestion, mode, nextQuestion]);
+
 
   function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
     if (!answer.trim() || !currentQuestion) return;
-    submitAnswer(answer.trim());
+    const correct = submitAnswer(answer.trim());
     setAnswer("");
+    if (correct) {
+      setTimeout(() => startNewQuestion(), 900);
+    }
   }
 
   // Telegraph key: append symbol to the answer string
@@ -196,7 +211,7 @@ export function PracticeCard() {
                 (m) => (
                   <button
                     key={m}
-                    onClick={() => setMode(m)}
+                    onClick={() => handleModeChange(m)}
                     className={`px-2 py-1.5 rounded-md text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 min-h-[32px] ${
                       mode === m
                         ? "bg-emerald-500 text-white"
