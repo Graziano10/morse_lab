@@ -64,8 +64,11 @@ export function PracticeCard() {
   function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
     if (!answer.trim() || !currentQuestion) return;
-    submitAnswer(answer.trim());
+    const correct = submitAnswer(answer.trim());
     setAnswer("");
+    if (correct) {
+      setTimeout(() => startNewQuestion(), 900);
+    }
   }
 
   // Telegraph key: append symbol to the answer string
