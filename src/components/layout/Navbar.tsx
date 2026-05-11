@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/learn", label: "Learn" },
-  { href: "/practice", label: "Practice" },
+  { href: "/learn", label: "Impara" },
+  { href: "/practice", label: "Pratica" },
 ];
 
 export function Navbar() {
@@ -19,9 +19,8 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-slate-700/60 bg-slate-900/80 backdrop-blur-md">
       <nav
         className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-16"
-        aria-label="Main navigation"
+        aria-label="Navigazione principale"
       >
-        {/* Logo */}
         <Link
           href="/"
           className="flex items-center gap-2 text-slate-100 font-bold text-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-md"
@@ -31,7 +30,6 @@ export function Navbar() {
           <span>MorseLab</span>
         </Link>
 
-        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map((link) => (
             <Link
@@ -50,10 +48,9 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Mobile hamburger */}
         <button
           className="md:hidden p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? "Chiudi menu" : "Apri menu"}
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((v) => !v)}
@@ -70,7 +67,6 @@ export function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile menu */}
       {open && (
         <div
           id="mobile-menu"

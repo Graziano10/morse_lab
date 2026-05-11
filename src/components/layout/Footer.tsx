@@ -9,14 +9,14 @@ export function Footer() {
             <span className="text-emerald-400 font-mono text-xl">·−</span>
             <span className="font-semibold text-slate-300">MorseLab</span>
             <span className="text-slate-600">·</span>
-            <span className="text-sm">Learn Morse Code</span>
+            <span className="text-sm">Impara il Codice Morse</span>
           </div>
 
-          <nav className="flex items-center gap-4" aria-label="Footer navigation">
+          <nav className="flex items-center gap-4" aria-label="Navigazione footer">
             {[
               { href: "/", label: "Home" },
-              { href: "/learn", label: "Learn" },
-              { href: "/practice", label: "Practice" },
+              { href: "/learn", label: "Impara" },
+              { href: "/practice", label: "Pratica" },
             ].map((link) => (
               <Link
                 key={link.href}
@@ -30,7 +30,7 @@ export function Footer() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-600">
-          Built with Next.js · TypeScript · Tailwind CSS
+          Realizzato con Next.js · TypeScript · Tailwind CSS
         </p>
       </div>
     </footer>

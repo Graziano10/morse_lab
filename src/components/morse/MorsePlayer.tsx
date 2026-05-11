@@ -41,24 +41,21 @@ export function MorsePlayer() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Audio Player</CardTitle>
+        <CardTitle>Riproduttore Audio</CardTitle>
       </CardHeader>
       <CardBody className="flex flex-col gap-4">
         <Textarea
-          label="Text to play"
-          placeholder="Type text here and click Play..."
+          label="Testo da riprodurre"
+          placeholder="Scrivi il testo e premi Riproduci..."
           value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            setMorse("");
-          }}
+          onChange={(e) => { setText(e.target.value); setMorse(""); }}
           rows={3}
-          aria-label="Text for audio playback"
+          aria-label="Testo per la riproduzione audio"
         />
 
         {morse && (
           <div className="rounded-lg bg-slate-900/60 border border-slate-700/40 px-4 py-3">
-            <p className="text-xs text-slate-500 mb-1">Morse code</p>
+            <p className="text-xs text-slate-500 mb-1">Codice Morse</p>
             <p className="font-mono text-emerald-400 text-sm break-all" aria-live="polite">
               {morse}
             </p>
@@ -66,57 +63,39 @@ export function MorsePlayer() {
         )}
 
         <Slider
-          label="Speed (WPM)"
+          label="Velocità (WPM)"
           min={5}
           max={40}
           value={wpm}
           onChange={(e) => setWpm(Number(e.target.value))}
           valueDisplay={`${wpm} WPM`}
-          aria-label={`Playback speed: ${wpm} WPM`}
+          aria-label={`Velocità: ${wpm} WPM`}
         />
 
         <Slider
-          label="Frequency (Hz)"
+          label="Frequenza (Hz)"
           min={400}
           max={900}
           step={50}
           value={frequency}
           onChange={(e) => setFrequency(Number(e.target.value))}
           valueDisplay={`${frequency} Hz`}
-          aria-label={`Tone frequency: ${frequency} Hz`}
+          aria-label={`Frequenza: ${frequency} Hz`}
         />
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            onClick={handleEncode}
-            variant="secondary"
-            size="lg"
-            disabled={!text.trim()}
-            className="w-full sm:w-auto"
-          >
-            Encode
+          <Button onClick={handleEncode} variant="secondary" size="lg" disabled={!text.trim()} className="w-full sm:w-auto">
+            Codifica
           </Button>
           {!playing ? (
-            <Button
-              onClick={handlePlay}
-              size="lg"
-              disabled={!text.trim() && !morse.trim()}
-              className="w-full sm:w-auto"
-              aria-label="Play Morse audio"
-            >
+            <Button onClick={handlePlay} size="lg" disabled={!text.trim() && !morse.trim()} className="w-full sm:w-auto" aria-label="Riproduci audio Morse">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
               </svg>
-              Play
+              Riproduci
             </Button>
           ) : (
-            <Button
-              onClick={handleStop}
-              variant="danger"
-              size="lg"
-              className="w-full sm:w-auto"
-              aria-label="Stop Morse audio"
-            >
+            <Button onClick={handleStop} variant="danger" size="lg" className="w-full sm:w-auto" aria-label="Stop audio">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M6 6h12v12H6z" />
               </svg>
