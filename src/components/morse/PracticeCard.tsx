@@ -120,7 +120,7 @@ export function PracticeCard() {
   const accuracy = total > 0 ? Math.round((score / total) * 100) : 0;
   const isListenMode = mode === "listen";
   const isMorseAnswer = expectsMorse(currentQuestion?.type);
-
+  
   // Avvia nuova domanda quando cambia la modalità
   useEffect(() => {
     startNewQuestion();
@@ -150,6 +150,8 @@ export function PracticeCard() {
     setAnswer("");
     nextQuestion(modeToQuestionType(mode));
   }
+}, [currentQuestion, mode, nextQuestion]);
+
 
   function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
