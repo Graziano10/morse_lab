@@ -20,7 +20,7 @@ export interface AudioOptions {
 }
 
 export interface PracticeQuestion {
-  type: "char-to-morse" | "morse-to-char";
+  type: "char-to-morse" | "morse-to-char" | "listen-to-char";
   char: string;
   morse: MorseCode;
 }
