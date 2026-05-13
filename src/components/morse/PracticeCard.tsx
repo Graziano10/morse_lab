@@ -150,8 +150,6 @@ export function PracticeCard() {
     setAnswer("");
     nextQuestion(modeToQuestionType(mode));
   }
-}, [currentQuestion, mode, nextQuestion]);
-
 
   function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
