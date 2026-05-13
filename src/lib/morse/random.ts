@@ -10,7 +10,7 @@ function randomEntry() {
 }
 
 export function generateQuestion(
-  type?: "char-to-morse" | "morse-to-char"
+  type?: "char-to-morse" | "morse-to-char" | "listen-to-char"
 ): PracticeQuestion {
   const entry = randomEntry();
   const questionType =

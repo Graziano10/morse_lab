@@ -4,10 +4,12 @@ import { create } from "zustand";
 import type { PracticeQuestion, PracticeSession } from "@/types/morse";
 import { generateQuestion } from "@/lib/morse/random";
 
+type QuestionType = PracticeQuestion["type"];
+
 interface PracticeState extends PracticeSession {
   lastAnswerCorrect: boolean | null;
   isRevealed: boolean;
-  nextQuestion: (type?: "char-to-morse" | "morse-to-char") => void;
+  nextQuestion: (type?: QuestionType) => void;
   submitAnswer: (answer: string) => boolean;
   reveal: () => void;
   reset: () => void;
@@ -44,7 +46,7 @@ export const usePracticeStore = create<PracticeState>((set, get) => ({
     const correct =
       currentQuestion.type === "char-to-morse"
         ? normalized === currentQuestion.morse.trim()
-        : normalized === currentQuestion.char.trim();
+        : normalized === currentQuestion.char.trim(); // morse-to-char AND listen-to-char
 
     set((state) => ({
       score: correct ? state.score + 1 : state.score,
