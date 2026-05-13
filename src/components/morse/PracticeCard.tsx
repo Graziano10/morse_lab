@@ -107,7 +107,7 @@ export function PracticeCard() {
     score, total, streak,
     currentQuestion,
     lastAnswerCorrect, isRevealed,
-    nextQuestion, submitAnswer, reveal, reset,
+    nextQuestion, submitAnswer, clearFeedback, reveal, reset,
   } = usePracticeStore();
 
   const [answer, setAnswer] = useState("");
@@ -155,8 +155,11 @@ export function PracticeCard() {
     e?.preventDefault();
     if (!answer.trim() || !currentQuestion) return;
     const correct = submitAnswer(answer.trim());
-    setAnswer("");
-    if (correct) setTimeout(() => startNewQuestion(), 900);
+    if (correct) {
+      setAnswer("");
+      setTimeout(() => startNewQuestion(), 900);
+    }
+    // se sbagliato: lascia l'input invariato così l'utente può ritentare subito
   }
 
   async function autoPlay() {
@@ -180,8 +183,9 @@ export function PracticeCard() {
   }
 
   const handleTelegraphSymbol = useCallback((symbol: "." | "-") => {
+    clearFeedback();
     setAnswer((prev) => (prev ? prev + symbol : symbol));
-  }, []);
+  }, [clearFeedback]);
 
   function handleTelegraphBackspace() {
     setAnswer((prev) => prev.slice(0, -1));
@@ -456,7 +460,7 @@ export function PracticeCard() {
                   <span className="text-slate-600 text-sm">premi il tasto per iniziare…</span>
                 )}
               </div>
-              <TelegraphKey onSymbol={handleTelegraphSymbol} disabled={!currentQuestion || lastAnswerCorrect !== null} />
+              <TelegraphKey onSymbol={handleTelegraphSymbol} disabled={!currentQuestion} />
               <div className="flex w-full gap-2">
                 <Button type="button" onClick={handleTelegraphBackspace} variant="ghost" size="md" disabled={!answer} aria-label="Cancella ultimo simbolo" className="flex-none px-3">⌫</Button>
                 <Button type="button" onClick={() => setAnswer("")} variant="ghost" size="md" disabled={!answer} aria-label="Cancella tutto" className="flex-none px-3">Cancella</Button>
@@ -469,7 +473,7 @@ export function PracticeCard() {
               <Input
                 ref={inputRef}
                 value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
+                onChange={(e) => { if (lastAnswerCorrect === false) clearFeedback(); setAnswer(e.target.value); }}
                 placeholder={isListenMode ? "Inserisci il carattere sentito (es. S)" : answerPlaceholder}
                 aria-label="La tua risposta"
                 autoComplete="off"

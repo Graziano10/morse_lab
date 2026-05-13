@@ -11,6 +11,7 @@ interface PracticeState extends PracticeSession {
   isRevealed: boolean;
   nextQuestion: (type?: QuestionType) => void;
   submitAnswer: (answer: string) => boolean;
+  clearFeedback: () => void;
   reveal: () => void;
   reset: () => void;
 }
@@ -57,6 +58,8 @@ export const usePracticeStore = create<PracticeState>((set, get) => ({
 
     return correct;
   },
+
+  clearFeedback: () => set({ lastAnswerCorrect: null }),
 
   reveal: () => set({ isRevealed: true }),
 
