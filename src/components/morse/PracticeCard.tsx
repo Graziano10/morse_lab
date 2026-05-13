@@ -128,13 +128,16 @@ export function PracticeCard() {
   }, [mode]);
 
   // Reset risposta + focus input al cambio domanda
-  useEffect(() => {
-    setAnswer("");
-    if (!useTelegraph && !isListenMode) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [currentQuestion, useTelegraph, isListenMode]);
+useEffect(() => {
+  if (!useTelegraph && !isListenMode) {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
 
+    return () => clearTimeout(timer);
+  }
+}, [currentQuestion, useTelegraph, isListenMode]);
+    
   // Auto-play in modalità Ascolto quando arriva una nuova domanda
   useEffect(() => {
     if (isListenMode && currentQuestion && lastAnswerCorrect === null) {
