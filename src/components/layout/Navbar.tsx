@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/learn", label: "Impara" },
   { href: "/practice", label: "Pratica" },
+  { href: "/decoder", label: "Decoder" },
 ];
 
 export function Navbar() {
