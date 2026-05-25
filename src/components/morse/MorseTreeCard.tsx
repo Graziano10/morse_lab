@@ -17,11 +17,8 @@ interface MNode {
   depth: number;
 }
 
-// Y coordinates per depth level — more vertical breathing room
 const YS = [32, 98, 174, 258, 348];
 
-// Level-4 x positions (perfectly balanced binary tree, 16 slots, spacing=35)
-// leftmost = all-dash (−−−−), rightmost = all-dot (····)
 const L4 = (i: number) => 37.5 + i * 35;
 
 const NODES: MNode[] = [
@@ -47,9 +44,7 @@ const NODES: MNode[] = [
   { id: "H",    letter: "H",   morse: "····", cx: L4(15), cy: YS[4], dotChild: null, dashChild: null, parent: "S",   depth: 4 },
   { id: "V",    letter: "V",   morse: "···−", cx: L4(14), cy: YS[4], dotChild: null, dashChild: null, parent: "S",   depth: 4 },
   { id: "F",    letter: "F",   morse: "··−·", cx: L4(13), cy: YS[4], dotChild: null, dashChild: null, parent: "U",   depth: 4 },
-  // L4(12) = ··−− skip
   { id: "L",    letter: "L",   morse: "·−··", cx: L4(10), cy: YS[4], dotChild: null, dashChild: null, parent: "R",   depth: 4 },
-  // L4(11) = ·−·− skip
   { id: "P",    letter: "P",   morse: "·−−·", cx: L4(9),  cy: YS[4], dotChild: null, dashChild: null, parent: "W",   depth: 4 },
   { id: "J",    letter: "J",   morse: "·−−−", cx: L4(8),  cy: YS[4], dotChild: null, dashChild: null, parent: "W",   depth: 4 },
   { id: "B",    letter: "B",   morse: "−···", cx: L4(7),  cy: YS[4], dotChild: null, dashChild: null, parent: "D",   depth: 4 },
@@ -58,8 +53,6 @@ const NODES: MNode[] = [
   { id: "Y",    letter: "Y",   morse: "−·−−", cx: L4(4),  cy: YS[4], dotChild: null, dashChild: null, parent: "K",   depth: 4 },
   { id: "Z",    letter: "Z",   morse: "−−··", cx: L4(3),  cy: YS[4], dotChild: null, dashChild: null, parent: "G",   depth: 4 },
   { id: "Q",    letter: "Q",   morse: "−−·−", cx: L4(2),  cy: YS[4], dotChild: null, dashChild: null, parent: "G",   depth: 4 },
-  // L4(1) = −−−· skip
-  // L4(0) = −−−− skip
 ];
 
 const NODE_MAP = new Map(NODES.map((n) => [n.id, n]));
@@ -127,7 +120,6 @@ function nodeRadius(depth: number) {
 
 // ─── SVG sub-components ───────────────────────────────────────────────────────
 
-// Branch-direction label (· or −) at the midpoint of an edge
 function BranchLabel({
   x1, y1, x2, y2, label, active, dotBranch,
 }: {
@@ -137,13 +129,13 @@ function BranchLabel({
   const mx = (x1 + x2) / 2;
   const my = (y1 + y2) / 2;
   const color = active
-    ? dotBranch ? "#34d399" : "#fbbf24"
-    : dotBranch ? "#1a3828" : "#2e1e06";
+    ? dotBranch ? "#22d3ee" : "#f59e0b"
+    : dotBranch ? "#1a3038" : "#2e2010";
 
   return (
     <g>
       <rect x={mx - 6} y={my - 8} width={12} height={12} rx={3}
-        fill="#060d0a" fillOpacity={0.85} />
+        fill="#09090b" fillOpacity={0.9} />
       <text x={mx} y={my + 1}
         textAnchor="middle" dominantBaseline="central"
         fill={color} fontSize={9} fontWeight="bold" fontFamily="monospace">
@@ -200,7 +192,6 @@ export function MorseTreeCard() {
     }, 1500);
   }, [updatePath]);
 
-  // Press duration ticker (powers the ring UI)
   useEffect(() => {
     if (!pressed) {
       setPressDuration(0);
@@ -250,7 +241,6 @@ export function MorseTreeCard() {
     endPress();
   }, [endPress]);
 
-  // Keyboard (Space)
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => {
       if (e.code !== "Space" || e.repeat) return;
@@ -288,9 +278,9 @@ export function MorseTreeCard() {
 
   // ─── Derived render state ─────────────────────────────────────────────────
 
-  const activePath   = getActivePath(currentPath);
-  const activeSet    = new Set(activePath);
-  const currentNode  = resolveNode(currentPath);
+  const activePath    = getActivePath(currentPath);
+  const activeSet     = new Set(activePath);
+  const currentNode   = resolveNode(currentPath);
   const currentNodeId = currentNode?.id ?? null;
 
   const getNodeState = (id: string): "current" | "path" | "inactive" => {
@@ -302,64 +292,49 @@ export function MorseTreeCard() {
   const isLineActive = (pId: string, cId: string) =>
     activeSet.has(pId) && activeSet.has(cId);
 
-  // Press ring
   const RING_R = 56;
   const CIRC   = 2 * Math.PI * RING_R;
-  const ringProgress  = Math.min(pressDuration / DASH_MS, 1);
-  const ringOffset    = CIRC * (1 - ringProgress);
-  const ringColor     = ringProgress >= 1 ? "#f59e0b" : "#10b981";
-  const predictedSym  = pressed ? (pressDuration >= DASH_MS ? "−" : "·") : null;
+  const ringProgress = Math.min(pressDuration / DASH_MS, 1);
+  const ringOffset   = CIRC * (1 - ringProgress);
+  const ringColor    = ringProgress >= 1 ? "#f59e0b" : "#22d3ee";
+  const predictedSym = pressed ? (pressDuration >= DASH_MS ? "−" : "·") : null;
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col items-center gap-8 w-full">
+    <div className="flex flex-col items-center gap-6 w-full">
 
-      {/* ══ PCB CARD ══════════════════════════════════════════════════════════ */}
-      <div
-        className={cn(
-          "w-full max-w-3xl rounded-2xl overflow-hidden transition-all duration-300",
-          "shadow-[0_0_60px_-10px_rgba(0,0,0,0.8)]",
-          isInvalid
-            ? "ring-2 ring-red-500/70 shadow-red-900/40"
-            : "ring-1 ring-emerald-900/40"
-        )}
-        style={{
-          background: "linear-gradient(160deg,#081410 0%,#060d08 60%,#050b07 100%)",
-        }}
-      >
-        {/* ── Card header ── */}
-        <div className="relative flex items-center justify-between px-5 py-3 border-b border-emerald-900/30">
-          {/* Mounting holes */}
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border border-emerald-900/50 bg-black/60" />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border border-emerald-900/50 bg-black/60" />
+      {/* ── Tree Card ── */}
+      <div className={cn(
+        "w-full max-w-3xl rounded-2xl overflow-hidden transition-all duration-300",
+        "border shadow-2xl shadow-black/60",
+        isInvalid
+          ? "border-red-500/25 shadow-red-950/30"
+          : "border-white/[0.07]"
+      )} style={{ background: "#09090b" }}>
 
-          <span className="font-black tracking-[0.6em] text-emerald-900/80 text-xs pl-4">
-            MORSE
-          </span>
-
-          {/* Status LED */}
-          <div className="flex items-center gap-2">
-            <div
-              className={cn(
-                "w-3 h-3 rounded-full transition-all duration-200",
-                isInvalid
-                  ? "bg-red-400 shadow-[0_0_14px_5px_rgba(248,113,113,0.8)]"
-                  : currentNode
-                  ? "bg-emerald-400 shadow-[0_0_14px_5px_rgba(52,211,153,0.7)] animate-pulse"
-                  : "bg-red-700 shadow-[0_0_4px_1px_rgba(185,28,28,0.3)]"
-              )}
-              aria-label="LED stato"
-            />
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.05]">
+          <div className="flex items-center gap-3">
+            <span className="text-cyan-500 font-black tracking-wider text-sm font-mono">·−</span>
+            <span className="text-[11px] font-semibold tracking-[0.3em] text-zinc-500 uppercase">
+              Morse Tree
+            </span>
           </div>
 
-          <span className="font-black tracking-[0.6em] text-emerald-900/80 text-xs pr-4">
-            CODE
-          </span>
+          {/* Status indicator */}
+          <div className={cn(
+            "w-2 h-2 rounded-full transition-all duration-200",
+            isInvalid
+              ? "bg-red-500 shadow-[0_0_8px_3px_rgba(239,68,68,0.5)]"
+              : currentNode
+              ? "bg-cyan-400 shadow-[0_0_8px_3px_rgba(34,211,238,0.5)] animate-pulse"
+              : "bg-zinc-800"
+          )} />
         </div>
 
-        {/* ── SVG Tree (viewBox 600 × 380) ── */}
-        <div className="px-2 pt-2 pb-3">
+        {/* SVG Tree */}
+        <div className="px-2 py-3">
           <svg
             viewBox="0 0 600 380"
             className="w-full h-auto"
@@ -367,31 +342,17 @@ export function MorseTreeCard() {
             style={{ fontFamily: "monospace" }}
           >
             <defs>
-              {/* PCB dot-grid */}
-              <pattern id="pcb-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="10" cy="10" r="0.65" fill="#0d2216" />
-              </pattern>
-
-              {/* Copper trace gradient */}
-              <linearGradient id="trace-copper" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#5a3e1a" />
-                <stop offset="100%" stopColor="#7a5a28" />
-              </linearGradient>
-
-              {/* Glow — current node (green LED) */}
-              <filter id="led-green" x="-80%" y="-80%" width="260%" height="260%">
-                <feGaussianBlur stdDeviation="5" result="b1" />
-                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="b2" />
+              <filter id="glow-cyan" x="-80%" y="-80%" width="260%" height="260%">
+                <feGaussianBlur stdDeviation="4" result="b1" />
+                <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="b2" />
                 <feMerge>
                   <feMergeNode in="b1" />
                   <feMergeNode in="b2" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
-
-              {/* Glow — path nodes (amber) */}
-              <filter id="led-amber" x="-70%" y="-70%" width="240%" height="240%">
-                <feGaussianBlur stdDeviation="3.5" result="b" />
+              <filter id="glow-amber" x="-70%" y="-70%" width="240%" height="240%">
+                <feGaussianBlur stdDeviation="3" result="b" />
                 <feMerge>
                   <feMergeNode in="b" />
                   <feMergeNode in="SourceGraphic" />
@@ -399,19 +360,34 @@ export function MorseTreeCard() {
               </filter>
             </defs>
 
-            {/* Board background */}
-            <rect width="600" height="380" fill="#050c08" rx="6" />
-            <rect width="600" height="380" fill="url(#pcb-grid)" rx="6" />
+            {/* Background */}
+            <rect width="600" height="380" fill="#09090b" rx="4" />
 
-            {/* Corner mounting pads */}
-            {[[14,14],[586,14],[14,366],[586,366]].map(([cx,cy], i) => (
-              <g key={i}>
-                <circle cx={cx} cy={cy} r={7} fill="#0a1a0e" stroke="#1a3a22" strokeWidth={1} />
-                <circle cx={cx} cy={cy} r={3} fill="#0d2016" stroke="#2a5a30" strokeWidth={0.8} />
-              </g>
+            {/* Subtle depth guides */}
+            {[YS[1], YS[2], YS[3], YS[4]].map((y, i) => (
+              <line key={i} x1={16} y1={y} x2={584} y2={y}
+                stroke="#18181b" strokeWidth={0.5} strokeDasharray="3 8"
+              />
             ))}
 
-            {/* ── Edges ── */}
+            {/* Root symbol */}
+            {(() => {
+              const { cx, cy } = NODE_MAP.get("root")!;
+              return (
+                <g>
+                  <polygon
+                    points={`${cx},${cy - 13} ${cx - 10},${cy + 7} ${cx + 10},${cy + 7}`}
+                    fill="#111113" stroke="#3f3f46" strokeWidth="1.5"
+                  />
+                  <line x1={cx} y1={cy + 7} x2={cx} y2={cy + 20} stroke="#3f3f46" strokeWidth="1.5" />
+                  <line x1={cx - 10} y1={cy + 20} x2={cx + 10} y2={cy + 20} stroke="#3f3f46" strokeWidth="1.5" />
+                  <text x={cx + 78} y={cy + 6} fill="#3f3f46" fontSize={8} textAnchor="middle">HOLD = −</text>
+                  <text x={cx - 78} y={cy + 6} fill="#3f3f46" fontSize={8} textAnchor="middle">TAP = ·</text>
+                </g>
+              );
+            })()}
+
+            {/* Edges */}
             {NODES.map((node) => {
               const edges = [];
 
@@ -421,12 +397,11 @@ export function MorseTreeCard() {
                 edges.push(
                   <line key={`${node.id}-dot-line`}
                     x1={node.cx} y1={node.cy} x2={child.cx} y2={child.cy}
-                    stroke={active ? "#10b981" : "#132b1a"}
-                    strokeWidth={active ? 2.2 : 1.2}
-                    strokeOpacity={active ? 1 : 0.9}
+                    stroke={active ? "#22d3ee" : "#27272a"}
+                    strokeWidth={active ? 2 : 1}
+                    strokeOpacity={active ? 1 : 0.7}
                   />
                 );
-                // Label only for depth 0→1 and 1→2
                 if (node.depth <= 1) {
                   edges.push(
                     <BranchLabel key={`${node.id}-dot-lbl`}
@@ -443,9 +418,9 @@ export function MorseTreeCard() {
                 edges.push(
                   <line key={`${node.id}-dash-line`}
                     x1={node.cx} y1={node.cy} x2={child.cx} y2={child.cy}
-                    stroke={active ? "#f59e0b" : "#2a1a06"}
-                    strokeWidth={active ? 2.2 : 1.2}
-                    strokeOpacity={active ? 1 : 0.9}
+                    stroke={active ? "#f59e0b" : "#27272a"}
+                    strokeWidth={active ? 2 : 1}
+                    strokeOpacity={active ? 1 : 0.7}
                   />
                 );
                 if (node.depth <= 1) {
@@ -461,62 +436,22 @@ export function MorseTreeCard() {
               return edges;
             })}
 
-            {/* ── Antenna (root) ── */}
-            {(() => {
-              const { cx, cy } = NODE_MAP.get("root")!;
-              return (
-                <g>
-                  {/* Signal arcs */}
-                  {[14, 20, 26].map((r, i) => (
-                    <g key={i}>
-                      <path
-                        d={`M ${cx - r} ${cy - 2} Q ${cx - r - 4} ${cy - r} ${cx - r + 2} ${cy - r*1.4}`}
-                        fill="none" stroke="#1a3a28" strokeWidth="1" strokeOpacity={0.6 - i*0.15}
-                      />
-                      <path
-                        d={`M ${cx + r} ${cy - 2} Q ${cx + r + 4} ${cy - r} ${cx + r - 2} ${cy - r*1.4}`}
-                        fill="none" stroke="#1a3a28" strokeWidth="1" strokeOpacity={0.6 - i*0.15}
-                      />
-                    </g>
-                  ))}
-                  {/* Triangle */}
-                  <polygon
-                    points={`${cx},${cy - 16} ${cx - 11},${cy + 5} ${cx + 11},${cy + 5}`}
-                    fill="#071210" stroke="#2e5a3e" strokeWidth="1.8"
-                  />
-                  {/* Mast */}
-                  <line x1={cx} y1={cy + 5} x2={cx} y2={cy + 18} stroke="#2e5a3e" strokeWidth="1.8" />
-                  <line x1={cx - 11} y1={cy + 18} x2={cx + 11} y2={cy + 18} stroke="#2e5a3e" strokeWidth="1.8" />
-                  {/* Tap / Hold legend inside card */}
-                  <text x={cx + 80} y={cy + 14} fill="#15301a" fontSize={8} textAnchor="middle">TAP = ·</text>
-                  <text x={cx - 80} y={cy + 14} fill="#25200a" fontSize={8} textAnchor="middle">HOLD = −</text>
-                </g>
-              );
-            })()}
-
-            {/* ── Letter nodes ── */}
+            {/* Letter nodes */}
             {NODES.filter((n) => n.depth > 0).map((node) => {
               const state     = getNodeState(node.id);
               const r         = nodeRadius(node.depth);
               const isCurrent = state === "current";
               const isPath    = state === "path";
 
-              // Copper-palette for inactive; bright LED for active
-              const fill        = isCurrent ? "#041e0f"  : isPath ? "#1e0f00"  : "#091411";
-              const stroke      = isCurrent ? "#00e676"  : isPath ? "#ffa000"  : "#4a6b3a";
-              const strokeW     = isCurrent ? 2.5        : isPath ? 2          : 1;
-              const textColor   = isCurrent ? "#b9ffd7"  : isPath ? "#ffe082"  : "#5a7a50";
-              const fontSize    = node.depth <= 2 ? 13 : node.depth === 3 ? 10 : 9;
-              const filter      = isCurrent ? "url(#led-green)" : isPath ? "url(#led-amber)" : undefined;
+              const fill      = isCurrent ? "#041e26" : isPath ? "#1a1200" : "#111113";
+              const stroke    = isCurrent ? "#22d3ee" : isPath ? "#f59e0b" : "#3f3f46";
+              const strokeW   = isCurrent ? 2         : isPath ? 1.5       : 1;
+              const textColor = isCurrent ? "#67e8f9"  : isPath ? "#fcd34d" : "#52525b";
+              const fontSize  = node.depth <= 2 ? 13 : node.depth === 3 ? 10 : 9;
+              const filter    = isCurrent ? "url(#glow-cyan)" : isPath ? "url(#glow-amber)" : undefined;
 
               return (
                 <g key={node.id} filter={filter}>
-                  {/* Outer ring (copper pad style) */}
-                  {!isCurrent && !isPath && (
-                    <circle cx={node.cx} cy={node.cy} r={r + 3}
-                      fill="none" stroke="#2a3d28" strokeWidth={0.6}
-                    />
-                  )}
                   <circle cx={node.cx} cy={node.cy} r={r}
                     fill={fill} stroke={stroke} strokeWidth={strokeW}
                   />
@@ -526,7 +461,7 @@ export function MorseTreeCard() {
                       textAnchor="middle"
                       fill={textColor}
                       fontSize={fontSize}
-                      fontWeight="bold"
+                      fontWeight="600"
                     >
                       {node.letter}
                     </text>
@@ -535,20 +470,20 @@ export function MorseTreeCard() {
               );
             })}
 
-            {/* ── Active-node morse code badge ── */}
+            {/* Active node morse badge */}
             {currentNode && (() => {
               const { cx, cy, morse } = currentNode;
-              const r = nodeRadius(currentNode.depth);
+              const r      = nodeRadius(currentNode.depth);
               const badgeY = cy + r + 14;
-              const tw = morse.length * 7 + 10;
+              const tw     = morse.length * 7 + 12;
               return (
-                <g filter="url(#led-green)">
+                <g filter="url(#glow-cyan)">
                   <rect x={cx - tw / 2} y={badgeY - 8} width={tw} height={13}
-                    rx={4} fill="#021a0c" stroke="#10b981" strokeWidth={0.8}
+                    rx={4} fill="#041e26" stroke="#22d3ee" strokeWidth={0.8}
                   />
                   <text x={cx} y={badgeY + 1}
                     textAnchor="middle" dominantBaseline="central"
-                    fill="#34d399" fontSize={8} fontWeight="bold"
+                    fill="#67e8f9" fontSize={8} fontWeight="bold"
                   >
                     {morse}
                   </text>
@@ -556,90 +491,90 @@ export function MorseTreeCard() {
               );
             })()}
 
-            {/* ── Legend strip at bottom ── */}
+            {/* Legend */}
             <g>
-              <circle cx={22} cy={368} r={5} fill="#041e0f" stroke="#00e676" strokeWidth={1.5} />
-              <text x={30} y={372} fill="#1a3a28" fontSize={7}>Posizione attuale</text>
-              <circle cx={130} cy={368} r={5} fill="#1e0f00" stroke="#ffa000" strokeWidth={1.5} />
-              <text x={138} y={372} fill="#2e2010" fontSize={7}>Percorso seguito</text>
-              <circle cx={240} cy={368} r={5} fill="#091411" stroke="#4a6b3a" strokeWidth={1} />
-              <text x={248} y={372} fill="#1a3028" fontSize={7}>Nodo non attivo</text>
+              <circle cx={22} cy={368} r={4} fill="#041e26" stroke="#22d3ee" strokeWidth={1.5} />
+              <text x={30} y={372} fill="#52525b" fontSize={7}>Attuale</text>
+              <circle cx={88} cy={368} r={4} fill="#1a1200" stroke="#f59e0b" strokeWidth={1.5} />
+              <text x={96} y={372} fill="#52525b" fontSize={7}>Percorso</text>
+              <circle cx={158} cy={368} r={4} fill="#111113" stroke="#3f3f46" strokeWidth={1} />
+              <text x={166} y={372} fill="#52525b" fontSize={7}>Inattivo</text>
             </g>
           </svg>
         </div>
 
-        {/* ── Inline sequence bar ── */}
+        {/* Sequence bar */}
         <div className={cn(
-          "flex items-center justify-center gap-2 px-4 py-3 border-t transition-colors duration-200",
-          currentPath.length > 0 ? "border-emerald-900/40 bg-black/20" : "border-emerald-950/20"
+          "flex items-center justify-center gap-2 px-5 py-3 border-t transition-colors duration-200",
+          currentPath.length > 0 ? "border-white/[0.06] bg-white/[0.015]" : "border-white/[0.04]"
         )}>
           {currentPath.length === 0 ? (
-            <span className="text-xs text-emerald-900/60 font-mono tracking-widest select-none">
-              {isInvalid ? "— SEQUENZA NON VALIDA —" : "· − · PREMI IL TASTO · − ·"}
+            <span className={cn(
+              "text-[11px] font-mono tracking-widest select-none",
+              isInvalid ? "text-red-500/70" : "text-zinc-700"
+            )}>
+              {isInvalid ? "SEQUENZA NON VALIDA" : "· − · PREMI IL TASTO · − ·"}
             </span>
           ) : (
-            <>
-              <span className="text-xs text-emerald-900/50 font-mono mr-1">input:</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-zinc-700 font-mono tracking-wider mr-1">input</span>
               {currentPath.map((sym, i) => (
-                <span key={i}
-                  className={cn(
-                    "text-xl font-black font-mono leading-none select-none",
-                    sym === "." ? "text-emerald-400" : "text-amber-400"
-                  )}
-                >
+                <span key={i} className={cn(
+                  "text-xl font-black font-mono leading-none select-none",
+                  sym === "." ? "text-cyan-400" : "text-amber-400"
+                )}>
                   {sym === "." ? "·" : "−"}
                 </span>
               ))}
               {currentNode?.letter && (
-                <span className="ml-3 text-xs text-emerald-600/70 font-mono">
+                <span className="ml-2 text-[11px] text-zinc-600 font-mono">
                   → {currentNode.letter}
                 </span>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
 
-      {/* ══ CONTROLS ══════════════════════════════════════════════════════════ */}
+      {/* ── Controls ── */}
       <div className="flex flex-col sm:flex-row items-center gap-8 sm:gap-14 w-full max-w-3xl">
 
-        {/* ── Telegraph button ── */}
+        {/* Telegraph button */}
         <div className="flex flex-col items-center gap-3 select-none shrink-0">
-          <p className="text-xs font-mono text-emerald-900/60 tracking-widest uppercase">
-            Tasto Telegrafo
+          <p className="text-[10px] font-mono text-zinc-600 tracking-[0.3em] uppercase">
+            Telegrafo
           </p>
 
-          {/* Predicted symbol above button */}
+          {/* Predicted symbol */}
           <div className="h-8 flex items-center justify-center">
             {predictedSym ? (
               <span className={cn(
                 "text-3xl font-black font-mono transition-all duration-100",
-                predictedSym === "·" ? "text-emerald-400" : "text-amber-400"
+                predictedSym === "·" ? "text-cyan-400" : "text-amber-400"
               )}>
                 {predictedSym}
               </span>
             ) : (
-              <span className="text-xs text-slate-700 font-mono">tap · / hold −</span>
+              <span className="text-[10px] text-zinc-700 font-mono tracking-wider">
+                tap · / hold −
+              </span>
             )}
           </div>
 
-          {/* Button with press-ring */}
+          {/* Button + ring */}
           <div className="relative w-32 h-32">
-            {/* SVG ring */}
             <svg
               className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none"
               viewBox="0 0 128 128"
             >
-              {/* Track */}
               <circle cx="64" cy="64" r={RING_R}
-                fill="none" stroke="#1a2a1a" strokeWidth="5"
+                fill="none" stroke="#27272a" strokeWidth="4"
               />
-              {/* Progress */}
               {pressed && (
                 <circle cx="64" cy="64" r={RING_R}
                   fill="none"
                   stroke={ringColor}
-                  strokeWidth="5"
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeDasharray={CIRC}
                   strokeDashoffset={ringOffset}
@@ -653,78 +588,81 @@ export function MorseTreeCard() {
               onPointerUp={handlePointerUp}
               onPointerCancel={cancelPress}
               className={cn(
-                "absolute inset-3 rounded-full border-[3px] transition-all duration-75",
-                "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900",
-                "touch-none select-none flex items-center justify-center",
+                "absolute inset-3 rounded-full transition-all duration-75",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]",
+                "touch-none select-none flex items-center justify-center border-2",
                 pressed
-                  ? "bg-red-700 border-red-800 scale-95 shadow-inner shadow-red-950"
+                  ? "bg-zinc-800 border-zinc-600 scale-95 shadow-inner shadow-black/60"
                   : [
-                      "bg-red-600 border-red-500",
-                      "hover:bg-red-500 hover:border-red-400",
-                      "shadow-lg shadow-red-900/50",
+                      "bg-zinc-900 border-zinc-700",
+                      "hover:bg-zinc-800 hover:border-zinc-600",
+                      "shadow-lg shadow-black/50",
                     ]
               )}
               aria-label="Tasto telegrafo: premi brevemente per punto, tieni premuto per linea"
             >
-              {/* Button gloss */}
               {!pressed && (
                 <span
-                  className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-2.5 rounded-full bg-white/20 blur-sm"
+                  className="absolute top-2.5 left-1/2 -translate-x-1/2 w-7 h-2 rounded-full bg-white/[0.06] blur-sm"
                   aria-hidden="true"
                 />
               )}
-              <span className="text-2xl text-white/80 select-none pointer-events-none" aria-hidden="true">
+              <span className={cn(
+                "text-2xl select-none pointer-events-none transition-all duration-100",
+                pressed ? "text-zinc-500 scale-75" : "text-zinc-600"
+              )} aria-hidden="true">
                 {pressed ? "●" : "○"}
               </span>
             </button>
           </div>
 
-          <div className="flex gap-4 text-xs text-slate-600">
+          <div className="flex gap-5 text-[10px] text-zinc-700 font-mono">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0" />
-              Tap = ·
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-800 shrink-0" />
+              Tap ·
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-5 h-2 rounded bg-amber-700 shrink-0" />
-              Tieni = −
+              <span className="w-4 h-1.5 rounded bg-amber-900 shrink-0" />
+              Tieni −
             </span>
           </div>
-          <p className="text-xs text-slate-700">
-            o usa{" "}
-            <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-mono text-xs">
-              Spazio
+          <p className="text-[10px] text-zinc-700 font-mono">
+            o{" "}
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-500 text-[10px] font-mono">
+              Space
             </kbd>
           </p>
         </div>
 
-        {/* ── Right panel: decoded letter + controls ── */}
+        {/* Right panel: decoded letter + controls */}
         <div className="flex flex-col items-center sm:items-start gap-5 flex-1 w-full">
-          {/* Big letter flash */}
-          <div className="flex items-center gap-4">
-            <div className="w-28 h-28 rounded-2xl border border-emerald-900/30 bg-black/40 flex items-center justify-center">
+
+          {/* Letter display */}
+          <div className="flex items-center gap-5">
+            <div className="w-24 h-24 rounded-2xl border border-white/[0.07] bg-white/[0.02] flex items-center justify-center">
               {lastDecoded ? (
                 <span
                   className={cn(
-                    "text-7xl font-black font-mono transition-all duration-200 select-none",
+                    "text-6xl font-black font-mono transition-all duration-200 select-none",
                     showFlash
-                      ? "text-emerald-400 scale-110 drop-shadow-[0_0_28px_rgba(52,211,153,1)]"
-                      : "text-slate-700 scale-100"
+                      ? "text-cyan-400 scale-110 drop-shadow-[0_0_24px_rgba(34,211,238,0.8)]"
+                      : "text-zinc-700 scale-100"
                   )}
                   aria-live="assertive"
                 >
                   {lastDecoded}
                 </span>
               ) : (
-                <span className="text-3xl text-slate-800 select-none font-mono">?</span>
+                <span className="text-3xl text-zinc-800 select-none font-mono">?</span>
               )}
             </div>
 
-            <div className="flex flex-col gap-1.5 text-xs text-slate-600">
+            <div className="flex flex-col gap-1 text-[11px] text-zinc-700 font-mono">
               <span>Ultima lettera</span>
               <span>decodificata</span>
               {currentNode?.letter && (
-                <span className="mt-2 text-emerald-700 font-mono">
-                  ora: {currentNode.letter}
+                <span className="mt-2 text-cyan-800 font-mono">
+                  → {currentNode.letter}
                 </span>
               )}
             </div>
@@ -735,34 +673,34 @@ export function MorseTreeCard() {
             {currentPath.length > 0 && (
               <button
                 onClick={handleClearCurrent}
-                className="text-xs text-slate-500 hover:text-red-400 border border-slate-700 hover:border-red-800 rounded-lg px-3 py-1.5 transition-colors"
+                className="text-[11px] font-mono text-zinc-600 hover:text-red-400 border border-white/[0.07] hover:border-red-900/40 rounded-lg px-3 py-1.5 transition-colors"
               >
                 ✕ Annulla
               </button>
             )}
             <button
               onClick={handleAddSpace}
-              className="text-xs text-slate-500 hover:text-slate-300 border border-slate-700 rounded-lg px-3 py-1.5 transition-colors"
+              className="text-[11px] font-mono text-zinc-600 hover:text-zinc-300 border border-white/[0.07] rounded-lg px-3 py-1.5 transition-colors"
             >
               ⎵ Spazio
             </button>
             {decodedText && (
               <button
                 onClick={handleClearAll}
-                className="text-xs text-slate-500 hover:text-red-400 border border-slate-700 hover:border-red-800 rounded-lg px-3 py-1.5 transition-colors"
+                className="text-[11px] font-mono text-zinc-600 hover:text-red-400 border border-white/[0.07] hover:border-red-900/40 rounded-lg px-3 py-1.5 transition-colors"
               >
-                🗑 Cancella tutto
+                Cancella tutto
               </button>
             )}
           </div>
 
           {/* Decoded text buffer */}
           {decodedText && (
-            <div className="w-full rounded-xl border border-emerald-900/30 bg-black/30 px-4 py-3">
-              <span className="block text-xs text-emerald-900/60 font-mono mb-1.5 tracking-widest">
-                TESTO DECODIFICATO
+            <div className="w-full rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3">
+              <span className="block text-[10px] text-zinc-700 font-mono mb-2 tracking-[0.2em] uppercase">
+                Testo Decodificato
               </span>
-              <p className="font-mono text-lg text-emerald-300/90 tracking-[0.2em] min-h-[1.8rem] break-all">
+              <p className="font-mono text-lg text-zinc-300 tracking-[0.15em] min-h-[1.8rem] break-all">
                 {decodedText}
               </p>
             </div>
